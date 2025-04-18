@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+{% block title %}Détail de la sortie{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h2 class="mb-4">Sortie : {{ sortie.nom }}</h2>
+
+        <table class="table table-bordered table-hover">
+            <tbody>
+            <tr>
+                <th>Date de début</th>
+                <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
+            </tr>
+            <tr>
+                <th>Date limite d'inscription</th>
+                <td>{{ sortie.dateLimiteInscription|date('d/m/Y H:i') }}</td>
+            </tr>
+            <tr>
+                <th>Durée</th>
+                <td>{{ sortie.duree }} minutes</td>
+            </tr>
+            <tr>
+                <th>Nombre max d'inscriptions</th>
+                <td>{{ sortie.nbInscriptionsMax }}</td>
+            </tr>
+            <tr>
+                <th>Informations</th>
+                <td>{{ sortie.infosSortie }}</td>
+            </tr>
+            <tr>
+                <th>Lieu</th>
+                <td>{{ sortie.lieu.nom }} ({{ sortie.lieu.rue }})</td>
+            </tr>
+            <tr>
+                <th>Organisateur</th>
+                <td>{{ sortie.organisateur.prenom }} {{ sortie.organisateur.nom }}</td>
+            </tr>
+            <tr>
+                <th>Site</th>
+                <td>{{ sortie.siteOrganisateur.nom }}</td>
+            </tr>
+            <tr>
+                <th>Participants</th>
+                <td>
+                    <ul>
+                        {% for participant in sortie.participants %}
+                            <li>{{ participant.prenom }} {{ participant.nom }}</li>
+                        {% else %}
+                            <li><em>Aucun inscrit</em></li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <a href="{{ path('app_home') }}" class="btn btn-secondary mt-3">Retour à l'accueil</a>
+    </div>
+{% endblock %}

@@ -6,9 +6,12 @@ use App\Repository\ParticipantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: ParticipantRepository::class)]
-class Participant
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+class Participant implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -24,8 +27,11 @@ class Participant
     #[ORM\Column(length: 20)]
     private ?string $telephone = null;
 
-    #[ORM\Column(length: 180)]
+    #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
+
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
 
     #[ORM\Column(length: 255)]
     private ?string $password = null;
@@ -38,24 +44,24 @@ class Participant
 
     #[ORM\ManyToOne(inversedBy: 'participants')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Site $Site = null;
+    private ?Site $site = null;
 
     /**
      * @var Collection<int, Sortie>
      */
-    #[ORM\OneToMany(targetEntity: Sortie::class, mappedBy: 'organisateur')]
-    private Collection $participants;
+    #[ORM\OneToMany(mappedBy: 'organisateur', targetEntity: Sortie::class)]
+    private Collection $sortiesOrganisees;
 
     /**
      * @var Collection<int, Sortie>
      */
     #[ORM\ManyToMany(targetEntity: Sortie::class, mappedBy: 'participants')]
-    private Collection $siteOrganisateur;
+    private Collection $sortiesInscrites;
 
     public function __construct()
     {
-        $this->participants = new ArrayCollection();
-        $this->siteOrganisateur = new ArrayCollection();
+        $this->sortiesOrganisees = new ArrayCollection();
+        $this->sortiesInscrites = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -71,7 +77,6 @@ class Participant
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -83,7 +88,6 @@ class Participant
     public function setPrenom(string $prenom): static
     {
         $this->prenom = $prenom;
-
         return $this;
     }
 
@@ -95,7 +99,6 @@ class Participant
     public function setTelephone(string $telephone): static
     {
         $this->telephone = $telephone;
-
         return $this;
     }
 
@@ -107,7 +110,19 @@ class Participant
     public function setEmail(string $email): static
     {
         $this->email = $email;
+        return $this;
+    }
 
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
         return $this;
     }
 
@@ -119,7 +134,6 @@ class Participant
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
         return $this;
     }
 
@@ -131,7 +145,6 @@ class Participant
     public function setAdministrateur(bool $administrateur): static
     {
         $this->administrateur = $administrateur;
-
         return $this;
     }
 
@@ -143,46 +156,56 @@ class Participant
     public function setActif(bool $actif): static
     {
         $this->actif = $actif;
-
         return $this;
     }
 
     public function getSite(): ?Site
     {
-        return $this->Site;
+        return $this->site;
     }
 
-    public function setSite(?Site $Site): static
+    public function setSite(?Site $site): static
     {
-        $this->Site = $Site;
-
+        $this->site = $site;
         return $this;
+    }
+
+    /**
+     * A visual identifier that represents this user.
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function eraseCredentials(): void
+    {
+        // $this->plainPassword = null;
     }
 
     /**
      * @return Collection<int, Sortie>
      */
-    public function getParticipants(): Collection
+    public function getSortiesOrganisees(): Collection
     {
-        return $this->participants;
+        return $this->sortiesOrganisees;
     }
 
-    public function addParticipant(Sortie $participant): static
+    public function addSortieOrganisee(Sortie $sortie): static
     {
-        if (!$this->participants->contains($participant)) {
-            $this->participants->add($participant);
-            $participant->setOrganisateur($this);
+        if (!$this->sortiesOrganisees->contains($sortie)) {
+            $this->sortiesOrganisees->add($sortie);
+            $sortie->setOrganisateur($this);
         }
 
         return $this;
     }
 
-    public function removeParticipant(Sortie $participant): static
+    public function removeSortieOrganisee(Sortie $sortie): static
     {
-        if ($this->participants->removeElement($participant)) {
-            // set the owning side to null (unless already changed)
-            if ($participant->getOrganisateur() === $this) {
-                $participant->setOrganisateur(null);
+        if ($this->sortiesOrganisees->removeElement($sortie)) {
+            if ($sortie->getOrganisateur() === $this) {
+                $sortie->setOrganisateur(null);
             }
         }
 
@@ -192,25 +215,25 @@ class Participant
     /**
      * @return Collection<int, Sortie>
      */
-    public function getSiteOrganisateur(): Collection
+    public function getSortiesInscrites(): Collection
     {
-        return $this->siteOrganisateur;
+        return $this->sortiesInscrites;
     }
 
-    public function addSiteOrganisateur(Sortie $siteOrganisateur): static
+    public function addSortieInscrite(Sortie $sortie): static
     {
-        if (!$this->siteOrganisateur->contains($siteOrganisateur)) {
-            $this->siteOrganisateur->add($siteOrganisateur);
-            $siteOrganisateur->addParticipant($this);
+        if (!$this->sortiesInscrites->contains($sortie)) {
+            $this->sortiesInscrites->add($sortie);
+            $sortie->addParticipant($this);
         }
 
         return $this;
     }
 
-    public function removeSiteOrganisateur(Sortie $siteOrganisateur): static
+    public function removeSortieInscrite(Sortie $sortie): static
     {
-        if ($this->siteOrganisateur->removeElement($siteOrganisateur)) {
-            $siteOrganisateur->removeParticipant($this);
+        if ($this->sortiesInscrites->removeElement($sortie)) {
+            $sortie->removeParticipant($this);
         }
 
         return $this;

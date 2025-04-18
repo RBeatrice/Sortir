@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion - Sortir ENI{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="h4 mb-4 text-center">Connexion</h1>
+
+                    {% if error %}
+                        <div class="alert alert-danger">
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                        </div>
+                    {% endif %}
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="inputEmail" class="form-label">Adresse email</label>
+                            <input type="email" id="inputEmail" name="email" value="{{ last_username }}"
+                                   class="form-control" required autofocus autocomplete="email">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="inputPassword" class="form-label">Mot de passe</label>
+                            <input type="password" id="inputPassword" name="password"
+                                   class="form-control" required autocomplete="current-password">
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                        <div class="form-check mb-3">
+                            <input type="checkbox" name="_remember_me" class="form-check-input" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">Se souvenir de moi</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+                    </form>
+                </div>
+            </div>
+
+            {% if app.user %}
+                <p class="mt-3 text-center text-muted">
+                    Connecté en tant que {{ app.user.userIdentifier }}.
+                    <a href="{{ path('app_logout') }}">Se déconnecter</a>
+                </p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

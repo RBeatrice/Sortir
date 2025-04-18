@@ -19,6 +19,9 @@ class Lieu
     #[ORM\Column(length: 255)]
     private ?string $rue = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $ville = null;
+
     #[ORM\Column]
     private ?float $latitude = null;
 
@@ -38,7 +41,6 @@ class Lieu
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -50,7 +52,17 @@ class Lieu
     public function setRue(string $rue): static
     {
         $this->rue = $rue;
+        return $this;
+    }
 
+    public function getVille(): ?string
+    {
+        return $this->ville;
+    }
+
+    public function setVille(string $ville): static
+    {
+        $this->ville = $ville;
         return $this;
     }
 
@@ -62,7 +74,6 @@ class Lieu
     public function setLatitude(float $latitude): static
     {
         $this->latitude = $latitude;
-
         return $this;
     }
 
@@ -74,7 +85,6 @@ class Lieu
     public function setLongitude(float $longitude): static
     {
         $this->longitude = $longitude;
-
         return $this;
     }
 }

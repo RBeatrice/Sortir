@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+{% block title %}Nouvelle sortie{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h2>Créer une nouvelle sortie</h2>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+
+        {{ form_start(form) }}
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(form.nom) }}
+                {{ form_row(form.dateHeureDebut) }}
+                {{ form_row(form.dateLimiteInscription) }}
+                {{ form_row(form.nbInscriptionsMax) }}
+                {{ form_row(form.duree) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_row(form.infosSortie) }}
+                {{ form_row(form.lieu) }}
+            </div>
+        </div>
+
+        <button class="btn btn-success mt-3">Enregistrer la sortie</button>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

@@ -34,10 +34,10 @@ class Sortie
     #[ORM\Column(type: Types::TEXT)]
     private ?string $infosSortie = null;
 
-    #[ORM\ManyToOne(inversedBy: 'organisateur')]
-    private ?Etat $Etat = null;
+    #[ORM\ManyToOne(inversedBy: 'sorties')]
+    private ?Etat $etat = null;
 
-    #[ORM\ManyToOne(inversedBy: 'participants')]
+    #[ORM\ManyToOne(inversedBy: 'sortiesOrganisees')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Participant $organisateur = null;
 
@@ -192,4 +192,19 @@ class Sortie
 
         return $this;
     }
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Lieu $lieu = null;
+
+    public function getLieu(): ?Lieu
+    {
+        return $this->lieu;
+    }
+
+    public function setLieu(?Lieu $lieu): static
+    {
+        $this->lieu = $lieu;
+        return $this;
+    }
+
 }

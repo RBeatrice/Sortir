@@ -18,20 +18,19 @@ class Site
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[ORM\ManyToOne(inversedBy: 'sites')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Ville $Ville = null;
+    #[ORM\Column(length: 255)]
+    private ?string $ville = null;
 
     /**
      * @var Collection<int, Participant>
      */
-    #[ORM\OneToMany(targetEntity: Participant::class, mappedBy: 'Site')]
+    #[ORM\OneToMany(mappedBy: 'site', targetEntity: Participant::class)]
     private Collection $participants;
 
     /**
      * @var Collection<int, Sortie>
      */
-    #[ORM\OneToMany(targetEntity: Sortie::class, mappedBy: 'siteOrganisateur')]
+    #[ORM\OneToMany(mappedBy: 'siteOrganisateur', targetEntity: Sortie::class)]
     private Collection $sorties;
 
     public function __construct()
@@ -53,19 +52,17 @@ class Site
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
-    public function getVille(): ?Ville
+    public function getVille(): ?string
     {
-        return $this->Ville;
+        return $this->ville;
     }
 
-    public function setVille(?Ville $Ville): static
+    public function setVille(string $ville): static
     {
-        $this->Ville = $Ville;
-
+        $this->ville = $ville;
         return $this;
     }
 
@@ -90,7 +87,6 @@ class Site
     public function removeParticipant(Participant $participant): static
     {
         if ($this->participants->removeElement($participant)) {
-            // set the owning side to null (unless already changed)
             if ($participant->getSite() === $this) {
                 $participant->setSite(null);
             }
@@ -107,22 +103,21 @@ class Site
         return $this->sorties;
     }
 
-    public function addSorty(Sortie $sorty): static
+    public function addSortie(Sortie $sortie): static
     {
-        if (!$this->sorties->contains($sorty)) {
-            $this->sorties->add($sorty);
-            $sorty->setSiteOrganisateur($this);
+        if (!$this->sorties->contains($sortie)) {
+            $this->sorties->add($sortie);
+            $sortie->setSiteOrganisateur($this);
         }
 
         return $this;
     }
 
-    public function removeSorty(Sortie $sorty): static
+    public function removeSortie(Sortie $sortie): static
     {
-        if ($this->sorties->removeElement($sorty)) {
-            // set the owning side to null (unless already changed)
-            if ($sorty->getSiteOrganisateur() === $this) {
-                $sorty->setSiteOrganisateur(null);
+        if ($this->sorties->removeElement($sortie)) {
+            if ($sortie->getSiteOrganisateur() === $this) {
+                $sortie->setSiteOrganisateur(null);
             }
         }
 
